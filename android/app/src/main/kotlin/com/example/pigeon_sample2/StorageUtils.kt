@@ -3,6 +3,8 @@ package com.example.pigeon_sample2
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
+import android.net.Uri
+import android.provider.MediaStore
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -39,6 +41,17 @@ class StorageUtils {
             }
                 return mypath.absolutePath
         }
+
+         fun getRealPathFromURI(uri: Uri, context: Context): String {
+            val projection = arrayOf(MediaStore.Images.Media.DATA)
+            val cursor = context.contentResolver.query(uri, projection, null, null, null)
+            val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            cursor?.moveToFirst()
+            val path = cursor?.getString(columnIndex ?: 0)
+            cursor?.close()
+            return path ?: ""
+        }
+
     }
 //    fun showImage(imagePath: String, onImageLoaded: (ImageBitmap) -> Unit) {
 //        // Decode the image file and create an ImageBitmap object

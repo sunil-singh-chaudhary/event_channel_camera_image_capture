@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'ImageSelectionDialog.dart';
+
 class HomePage extends StatefulWidget {
   HomePage({super.key});
 
@@ -12,8 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final EventChannel _eventChannel =
-      EventChannel('com.example.pigeon_sample2/camera');
   final ValueNotifier<String> _imagepathNotifier =
       ValueNotifier<String>("nopath");
 
@@ -45,7 +45,19 @@ class _HomePageState extends State<HomePage> {
                   }),
               ElevatedButton(
                 onPressed: () async {
-                  _startListeningForCameraImage();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return ImageSelectionDialog(
+                        oncameraImagePath: (camerapath) {
+                          _imagepathNotifier.value = camerapath;
+                        },
+                        onGalleryPath: (gallerypath) {
+                          _imagepathNotifier.value = gallerypath;
+                        },
+                      );
+                    },
+                  );
                 },
                 child: const Text('Get Image'),
               ),
@@ -54,17 +66,5 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  void _startListeningForCameraImage() {
-    _eventChannel.receiveBroadcastStream().listen((event) {
-      // Handle the received image path
-      // Update the _imagePathNotifier value with the captured image path
-      debugPrint("listning path: $event");
-
-      _imagepathNotifier.value = event as String;
-    }, onError: (error) {
-      debugPrint("Error receiving camera image: $error");
-    });
   }
 }
